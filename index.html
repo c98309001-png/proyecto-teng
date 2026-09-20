@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TENG: Electricidad a partir de residuos — COBAEV 35</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F1EEDF;
+    --bg-soft:#E7E2CC;
+    --surface:#FFFFFF;
+    --ink:#1B2016;
+    --ink-soft:#4B5346;
+    --ink-faint:#7C8570;
+    --forest:#1F3526;
+    --forest-deep:#132018;
+    --moss:#4C6B41;
+    --sage:#8CA173;
+    --amber:#AD7A2E;
+    --amber-soft:#E4CDA0;
+    --line:#D2CBAE;
+    --graphite:#3A3B36;
+    --font-display:'Fraunces', serif;
+    --font-body:'Work Sans', sans-serif;
+  }
+  :root:not([data-theme="light"]){
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#11170F;
+      --bg-soft:#161D13;
+      --surface:#1A2117;
+      --ink:#ECE8D6;
+      --ink-soft:#BFC2AC;
+      --ink-faint:#828777;
+      --forest:#C7D8AE;
+      --forest-deep:#0C120C;
+      --moss:#93AC79;
+      --sage:#7E9866;
+      --amber:#D9A75A;
+      --amber-soft:#3A3320;
+      --line:#2C3527;
+      --graphite:#C9C6B8;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#11170F;
+    --bg-soft:#161D13;
+    --surface:#1A2117;
+    --ink:#ECE8D6;
+    --ink-soft:#BFC2AC;
+    --ink-faint:#828777;
+    --forest:#C7D8AE;
+    --forest-deep:#0C120C;
+    --moss:#93AC79;
+    --sage:#7E9866;
+    --amber:#D9A75A;
+    --amber-soft:#3A3320;
+    --line:#2C3527;
+    --graphite:#C9C6B8;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{max-width:100%;}
+  a{color:inherit;}
+  h1,h2,h3,h4{
+    font-family:var(--font-display);
+    font-weight:600;
+    margin:0 0 .5em 0;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  p{margin:0 0 1em 0;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px;}
+  .prose{max-width:660px;}
+
+  /* NAV */
+  header.nav{
+    position:sticky; top:0; z-index:50;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1120px;margin:0 auto;padding:16px 28px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+  }
+  .brand{
+    font-family:var(--font-display);
+    font-weight:600;font-size:1.05rem;
+    display:flex;align-items:center;gap:10px;
+    white-space:nowrap;
+  }
+  .brand .mark{
+    width:26px;height:26px;flex:none;
+  }
+  nav.links{display:flex;gap:24px;overflow-x:auto;scrollbar-width:none;}
+  nav.links::-webkit-scrollbar{display:none;}
+  nav.links a{
+    font-size:.92rem;color:var(--ink-soft);text-decoration:none;
+    white-space:nowrap;padding:4px 2px;border-bottom:2px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  nav.links a:hover{color:var(--ink);border-color:var(--sage);}
+
+  /* HERO */
+  .hero{
+    padding:88px 0 64px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center;
+  }
+  .kicker{
+    font-size:.95rem;color:var(--moss);font-weight:600;margin-bottom:18px;
+    font-family:var(--font-body);
+  }
+  h1.title{
+    font-size:clamp(2.4rem, 5vw, 3.6rem);
+    line-height:1.05;
+    margin-bottom:22px;
+  }
+  h1.title em{
+    font-style:italic;color:var(--moss);
+  }
+  p.authors{
+    font-size:.95rem;color:var(--ink-soft);margin:0 0 20px 0;
+    display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;
+  }
+  p.authors span{
+    color:var(--ink-faint);font-size:.85rem;
+    padding-left:14px;border-left:1px solid var(--line);
+  }
+  .hero p.lead{
+    font-size:1.15rem;color:var(--ink-soft);max-width:52ch;
+  }
+  .hero-meta{
+    margin-top:32px;display:flex;gap:28px;flex-wrap:wrap;
+  }
+  .hero-meta div{font-size:.88rem;color:var(--ink-faint);max-width:16ch;}
+  .hero-meta strong{display:block;margin-bottom:4px;color:var(--ink);font-family:var(--font-display);font-size:1.05rem;font-weight:600;}
+
+  .hero-art{
+    background:var(--forest);
+    border-radius:6px;
+    padding:26px;
+    aspect-ratio:1/1.05;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-art svg{width:100%;height:100%;}
+
+  /* SECTION SHELLS */
+  section{padding:76px 0;border-top:1px solid var(--line);}
+  section.dark{
+    background:var(--forest-deep);
+    color:#EDEADA;
+    border-top:none;
+  }
+  section.dark h2, section.dark h3{color:#F3F1E3;}
+  section.dark p{color:#C9CBB6;}
+  .eyebrow-none{} /* intentionally no all-caps eyebrow labels used site-wide */
+
+  .section-head{
+    display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;margin-bottom:44px;
+    align-items:end;
+  }
+  .section-head h2{font-size:clamp(1.7rem,3vw,2.3rem);}
+  .section-head .index{
+    font-family:var(--font-display);
+    font-size:.95rem;color:var(--amber);
+  }
+
+  /* STAT ROW */
+  .stat-row{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);
+    margin-top:8px;
+  }
+  section.dark .stat-row{background:#26301F;border-color:#26301F;}
+  .stat{
+    background:var(--surface);padding:26px 22px;
+  }
+  section.dark .stat{background:var(--forest-deep);}
+  .stat .num{
+    font-family:var(--font-display);font-size:2.1rem;font-weight:600;color:var(--moss);
+    display:block;line-height:1;
+  }
+  section.dark .stat .num{color:var(--sage);}
+  .stat .cap{font-size:.85rem;color:var(--ink-faint);margin-top:8px;display:block;}
+
+  /* TWO COL */
+  .two-col{
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;
+  }
+
+  /* DIAGRAM CARD */
+  .diagram-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:4px;
+    padding:24px;
+  }
+  .diagram-card figcaption{
+    font-size:.85rem;color:var(--ink-faint);margin-top:14px;line-height:1.5;
+  }
+
+  /* PROCESS LIST — genuine sequence, numbered by design */
+  .process{
+    counter-reset:step;
+    margin-top:8px;
+  }
+  .process li{
+    list-style:none;position:relative;padding:22px 0 22px 56px;
+    border-top:1px solid var(--line);
+  }
+  .process li:first-child{border-top:none;}
+  .process li::before{
+    counter-increment:step;content:counter(step);
+    position:absolute;left:0;top:22px;
+    font-family:var(--font-display);font-size:1.1rem;font-weight:600;
+    color:var(--amber);
+    width:34px;height:34px;border:1px solid var(--amber);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .process h4{font-size:1.05rem;margin-bottom:6px;}
+  .process p{color:var(--ink-soft);margin:0;font-size:.96rem;}
+
+  /* MATERIALS GRID */
+  .materials{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;
+    margin-top:10px;
+  }
+  .material-tag{
+    border:1px solid var(--line);border-radius:4px;padding:16px 16px 14px;
+    background:var(--surface);
+  }
+  .material-tag .name{font-family:var(--font-display);font-weight:600;font-size:1.02rem;}
+  .material-tag .note{font-size:.82rem;color:var(--ink-faint);margin-top:4px;}
+
+  /* TABLE */
+  table{
+    width:100%;border-collapse:collapse;font-size:.92rem;margin-top:8px;
+  }
+  caption{text-align:left;font-size:.85rem;color:var(--ink-faint);margin-bottom:10px;}
+  th,td{
+    text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);
+  }
+  thead th{
+    color:var(--ink-faint);font-weight:600;font-size:.8rem;
+    text-transform:none;
+  }
+  td.num, th.num{text-align:right;font-variant-numeric:tabular-nums;}
+  td.hi{color:var(--moss);font-weight:600;}
+  .table-scroll{overflow-x:auto;}
+
+  /* CHART CARD */
+  .chart-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:4px;
+    padding:24px;margin-top:28px;
+  }
+  .chart-card .chart-wrap{position:relative;height:360px;}
+
+  /* CALLOUT */
+  .callout{
+    background:var(--amber-soft);border-left:3px solid var(--amber);
+    padding:20px 24px;border-radius:2px;margin-top:24px;
+  }
+  .callout p{margin:0;color:var(--ink);font-size:.97rem;}
+  .callout p + p{margin-top:8px;}
+
+  /* FEATURE PANEL (Sabritas) */
+  .feature-panel{
+    display:grid;grid-template-columns:.85fr 1.15fr;gap:0;
+    border:1px solid var(--line);border-radius:4px;overflow:hidden;
+    background:var(--surface);
+  }
+  .feature-panel .visual{
+    background:var(--forest);display:flex;align-items:center;justify-content:center;padding:30px;
+  }
+  .feature-panel .visual svg{width:100%;max-width:220px;}
+  .feature-panel .content{padding:34px;}
+  .feature-panel .content h3{font-size:1.4rem;}
+  .feature-panel .figures{
+    display:flex;gap:28px;margin-top:20px;flex-wrap:wrap;
+  }
+  .feature-panel .figures div{font-size:.85rem;color:var(--ink-faint);max-width:15ch;}
+  .feature-panel .figures strong{
+    display:block;margin-bottom:4px;font-family:var(--font-display);font-size:1.5rem;color:var(--amber);font-weight:600;
+  }
+
+  /* QUOTE / PRINCIPLE */
+  .principle{
+    font-family:var(--font-display);
+    font-size:clamp(1.3rem,2.6vw,1.8rem);
+    line-height:1.4;font-weight:500;
+    max-width:20ch;
+    margin-left:auto;
+    text-align:left;
+  }
+  section.dark .principle{color:#F3F1E3;}
+
+  /* APPLICATIONS GRID */
+  .apps-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);margin-top:20px;
+  }
+  .apps-grid .app{
+    background:var(--surface);padding:28px 24px;
+  }
+  .apps-grid .app h4{font-size:1.05rem;margin-bottom:8px;}
+  .apps-grid .app p{font-size:.9rem;color:var(--ink-soft);margin:0;}
+
+  /* SOURCES */
+  .sources{margin-top:8px;}
+  .sources .src{
+    padding:16px 0;border-top:1px solid var(--line);
+    display:grid;grid-template-columns:auto 1fr;gap:18px;font-size:.9rem;
+  }
+  .sources .src:first-child{border-top:none;}
+  .sources .tag{
+    font-size:.75rem;color:var(--ink-faint);padding-top:3px;white-space:nowrap;
+  }
+  .sources a{color:var(--moss);text-decoration:none;border-bottom:1px solid transparent;}
+  .sources a:hover{border-color:var(--moss);}
+
+  footer{
+    padding:44px 0 60px;
+    color:var(--ink-faint);font-size:.85rem;
+    border-top:1px solid var(--line);
+  }
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;}
+    .hero-art{order:-1;max-width:280px;margin:0 auto;}
+    .two-col{grid-template-columns:1fr;}
+    .section-head{grid-template-columns:1fr;gap:14px;}
+    .stat-row{grid-template-columns:repeat(2,1fr);}
+    .apps-grid{grid-template-columns:1fr;}
+    .feature-panel{grid-template-columns:1fr;}
+    nav.links{display:none;}
+  }
+
+  :focus-visible{outline:2px solid var(--moss);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 2C13 2 5 8 5 15a8 8 0 0 0 16 0C21 8 13 2 13 2Z" fill="var(--moss)"/>
+        <path d="M13 6v16" stroke="var(--forest-deep)" stroke-width="1.2" stroke-linecap="round" opacity=".5"/>
+      </svg>
+      TENG&nbsp;· residuos en voltaje
+    </div>
+    <nav class="links">
+      <a href="#problema">El problema</a>
+      <a href="#que-es">¿Qué es un TENG?</a>
+      <a href="#experimento">El experimento</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#residuos">Residuos</a>
+      <a href="#innovacion">Aplicaciones</a>
+      <a href="#fuentes">Fuentes</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">Proyecto científico-tecnológico · COBAEV Plantel 35 "Leonardo Pasquel", Xalapa, Veracruz</div>
+      <h1 class="title">Convertimos cáscara de papa, hoja de plátano y bolsas de Sabritas en <em>electricidad</em>.</h1>
+      <p class="authors">López Zarate Felipe Yamil &amp; Soto Navarro Diana Lizeth<span>Asesora: Silíceo Andrade Rosa Carmina</span></p>
+      <p class="lead">Diseñamos, construimos y probamos un generador triboeléctrico (TENG) con materiales naturales y residuos de uso diario, para demostrar que la basura que normalmente tiramos puede generar una señal eléctrica útil.</p>
+      <div class="hero-meta">
+        <div><strong>75.4 Vpp</strong>hoja de plátano deshidratada + grafito</div>
+        <div><strong>48.40 Vpp</strong>bolsa de Sabritas reutilizada</div>
+        <div><strong>280 Vpp</strong>pico máximo medido con osciloscopio</div>
+      </div>
+    </div>
+    <figure class="hero-art">
+      <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg">
+        <!-- contact-separation illustration -->
+        <rect x="40" y="60" width="240" height="22" rx="3" fill="#EDEADA"/>
+        <rect x="40" y="220" width="240" height="22" rx="3" fill="#EDEADA"/>
+        <g id="charges-top">
+          <circle cx="70" cy="71" r="4" fill="#AD7A2E"/>
+          <circle cx="120" cy="71" r="4" fill="#AD7A2E"/>
+          <circle cx="170" cy="71" r="4" fill="#AD7A2E"/>
+          <circle cx="220" cy="71" r="4" fill="#AD7A2E"/>
+          <circle cx="255" cy="71" r="4" fill="#AD7A2E"/>
+        </g>
+        <g id="charges-bottom">
+          <circle cx="70" cy="231" r="4" fill="#8CA173"/>
+          <circle cx="120" cy="231" r="4" fill="#8CA173"/>
+          <circle cx="170" cy="231" r="4" fill="#8CA173"/>
+          <circle cx="220" cy="231" r="4" fill="#8CA173"/>
+          <circle cx="255" cy="231" r="4" fill="#8CA173"/>
+        </g>
+        <line x1="40" y1="120" x2="40" y2="182" stroke="#8CA173" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <line x1="280" y1="120" x2="280" y2="182" stroke="#8CA173" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <path d="M40 150 C 10 150, 10 265, 45 265 L 130 265" stroke="#EDEADA" stroke-width="1.6" fill="none"/>
+        <path d="M280 150 C 310 150, 310 265, 275 265 L 190 265" stroke="#EDEADA" stroke-width="1.6" fill="none"/>
+        <rect x="130" y="253" width="60" height="24" rx="12" fill="none" stroke="#EDEADA" stroke-width="1.6"/>
+        <text x="160" y="270" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="12" fill="#EDEADA">LED</text>
+        <text x="160" y="105" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="11" fill="#C9CBB6">contacto</text>
+        <text x="160" y="200" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="11" fill="#C9CBB6">separación</text>
+        <path d="M150 92 l10 8 l-10 8" stroke="#C9CBB6" stroke-width="1.4" fill="none"/>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<section id="problema" class="dark">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">01</span>
+        <h2>Los polímeros no desaparecen, se acumulan</h2>
+      </div>
+      <p class="prose">El plástico resolvió problemas de costo y durabilidad, pero esa misma durabilidad es hoy su peor característica: la mayoría de los polímeros que fabricamos siguen existiendo en algún lugar del planeta, mucho después de que dejamos de usarlos.</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <span class="num">500 M t</span>
+        <span class="cap">de plástico se producen cada año en el mundo; dos terceras partes vienen de productos de un solo uso.</span>
+      </div>
+      <div class="stat">
+        <span class="num">&lt;10%</span>
+        <span class="cap">de los residuos plásticos enviados a vertedero llega realmente a reciclarse.</span>
+      </div>
+      <div class="stat">
+        <span class="num">79%</span>
+        <span class="cap">de ese plástico de vertedero termina siendo transportado hacia los océanos.</span>
+      </div>
+      <div class="stat">
+        <span class="num">2060</span>
+        <span class="cap">año en el que se estima que la generación de residuos plásticos podría triplicarse.</span>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:36px;background:#23301C;border-left-color:var(--amber);">
+      <p><strong>Por qué esto nos importa como proyecto:</strong> los residuos poliméricos son voluminosos, casi no se degradan y consumen espacio en los vertederos durante décadas. Pero investigaciones recientes muestran que esa misma cualidad —conservar carga eléctrica en su superficie al entrar en contacto con otros materiales— puede aprovecharse en lugar de combatirse.</p>
+      <p>Ahí es donde entra el TENG: no elimina el plástico que ya existe, pero ofrece una manera concreta de darle una segunda función antes de que termine en un vertedero o en el mar, y demuestra que también los residuos orgánicos de cocina pueden cumplir el mismo papel.</p>
+    </div>
+  </div>
+</section>
+
+<section id="que-es">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">02</span>
+        <h2>¿Qué es un generador triboeléctrico?</h2>
+      </div>
+      <p class="prose">Un TENG (<em>triboelectric nanogenerator</em>) transforma energía mecánica —un golpe, una pisada, una vibración, el roce de dos superficies— directamente en energía eléctrica, sin necesidad de imanes ni bobinas.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="diagram-card">
+        <figure style="margin:0;">
+          <svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+            <text x="60" y="30" font-family="Fraunces, serif" font-size="14" fill="var(--ink)">1. Contacto</text>
+            <rect x="40" y="45" width="160" height="18" rx="2" fill="var(--amber)"/>
+            <rect x="40" y="63" width="160" height="18" rx="2" fill="var(--sage)"/>
+            <circle cx="70" cy="54" r="3" fill="#fff"/>
+            <circle cx="110" cy="54" r="3" fill="#fff"/>
+            <circle cx="150" cy="54" r="3" fill="#fff"/>
+            <circle cx="70" cy="72" r="3" fill="var(--forest-deep)"/>
+            <circle cx="110" cy="72" r="3" fill="var(--forest-deep)"/>
+            <circle cx="150" cy="72" r="3" fill="var(--forest-deep)"/>
+
+            <text x="300" y="30" font-family="Fraunces, serif" font-size="14" fill="var(--ink)">2. Separación</text>
+            <rect x="280" y="40" width="160" height="16" rx="2" fill="var(--amber)"/>
+            <rect x="280" y="75" width="160" height="16" rx="2" fill="var(--sage)"/>
+            <circle cx="310" cy="48" r="3" fill="#fff"/>
+            <circle cx="350" cy="48" r="3" fill="#fff"/>
+            <circle cx="390" cy="48" r="3" fill="#fff"/>
+            <circle cx="310" cy="83" r="3" fill="var(--forest-deep)"/>
+            <circle cx="350" cy="83" r="3" fill="var(--forest-deep)"/>
+            <circle cx="390" cy="83" r="3" fill="var(--forest-deep)"/>
+            <line x1="360" y1="56" x2="360" y2="75" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="3 3"/>
+
+            <text x="60" y="150" font-family="Fraunces, serif" font-size="14" fill="var(--ink)">3. Flujo de carga</text>
+            <rect x="40" y="165" width="160" height="16" rx="2" fill="var(--amber)"/>
+            <rect x="40" y="210" width="160" height="16" rx="2" fill="var(--sage)"/>
+            <path d="M45 181 C 20 181, 20 226, 48 226" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+            <path d="M195 181 C 220 181, 220 226, 192 226" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+            <circle cx="120" cy="203" r="10" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+            <path d="M116 203 l3 4 l6 -8" stroke="var(--ink)" stroke-width="1.2" fill="none"/>
+
+            <text x="300" y="150" font-family="Fraunces, serif" font-size="14" fill="var(--ink)">4. Se repite</text>
+            <path d="M330 200 a30 30 0 1 1 -8 20" fill="none" stroke="var(--moss)" stroke-width="2"/>
+            <path d="M322 220 l0 12 l12 -4 z" fill="var(--moss)"/>
+            <text x="300" y="245" font-family="Work Sans, sans-serif" font-size="11" fill="var(--ink-soft)">contacto ↔ separación = pulsos</text>
+          </svg>
+          <figcaption>Al juntar dos materiales con distinta afinidad por los electrones, sus superficies quedan con cargas opuestas. Al separarlos, esa diferencia de potencial empuja a los electrones a moverse por un circuito externo. Repetir el ciclo produce pulsos eléctricos continuos.</figcaption>
+        </figure>
+      </div>
+
+      <div>
+        <p>Su nombre viene de la <strong>triboelectricidad</strong>: el mismo fenómeno que hace que un globo se pegue a la pared después de frotarlo con el cabello. Un TENG simplemente organiza ese efecto dentro de un circuito para poder aprovecharlo.</p>
+        <p>La señal que produce depende de varios factores a la vez: los materiales elegidos, el área de contacto, la velocidad del movimiento, la presión aplicada, la humedad del ambiente y el acabado de las superficies. Por eso, dos prototipos hechos con el mismo material pueden comportarse distinto si cambia alguna de estas condiciones.</p>
+        <div class="callout">
+          <p><strong>Un matiz importante:</strong> un voltaje alto no es lo mismo que una potencia alta. Para conocer la potencia real haría falta medir también la corriente, la carga transferida y el comportamiento del TENG bajo una carga eléctrica definida — algo que documentamos como una limitación de nuestras mediciones, no como una conclusión final.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experimento" style="background:var(--bg-soft);">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">03</span>
+        <h2>Cómo construimos nuestro TENG</h2>
+      </div>
+      <p class="prose">Partimos de un prototipo simple para entender el fenómeno y fuimos ajustando materiales, tamaño y método de fijación hasta llegar a una plataforma comparable entre residuos.</p>
+    </div>
+
+    <ol class="process">
+      <li>
+        <h4>Prototipo inicial — hoja de plátano y unicel</h4>
+        <p>Construimos un primer TENG de 10 × 10 cm para comprobar el fenómeno de electrificación por contacto y estudiar el efecto de la humedad, comparando hoja fresca, hervida y deshidratada.</p>
+      </li>
+      <li>
+        <h4>Soporte en placa fenólica y piezas impresas en 3D</h4>
+        <p>Diseñamos un soporte que facilitara el contacto y la separación controlada de las superficies, usando placas fenólicas y elementos impresos en 3D.</p>
+      </li>
+      <li>
+        <h4>Adhesivo conductor con grafito</h4>
+        <p>Formulamos un adhesivo propio mezclando Resistol líquido con grafito, buscando mejorar la conducción entre el material triboeléctrico y la placa.</p>
+      </li>
+      <li>
+        <h4>Procesamiento de los residuos orgánicos</h4>
+        <p>Secamos y trituramos los materiales orgánicos con un molino eléctrico de café, para conseguir una distribución uniforme sobre el área de contacto.</p>
+      </li>
+      <li>
+        <h4>Pruebas comparativas por cantidad de material</h4>
+        <p>En la cáscara de papa probamos dos densidades de cobertura —100 % y 60 %— manteniendo siempre el mismo área de 10 × 10 cm, para aislar el efecto de la cantidad de material.</p>
+      </li>
+    </ol>
+
+    <div class="two-col" style="margin-top:52px;">
+      <div>
+        <h3 style="font-size:1.2rem;">Materiales que pusimos a prueba</h3>
+        <div class="materials">
+          <div class="material-tag"><div class="name">Hoja de plátano</div><div class="note">deshidratada al sol</div></div>
+          <div class="material-tag"><div class="name">Cáscara de papa</div><div class="note">seca y triturada</div></div>
+          <div class="material-tag"><div class="name">Pulpa de café</div><div class="note">residuo agroindustrial</div></div>
+          <div class="material-tag"><div class="name">Unicel</div><div class="note">contraparte tribonegativa</div></div>
+          <div class="material-tag"><div class="name">Teflón</div><div class="note">contraparte de referencia</div></div>
+          <div class="material-tag"><div class="name">Bolsa de Sabritas</div><div class="note">residuo metalizado</div></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:1.2rem;">Efecto de la humedad (prototipo inicial)</h3>
+        <div class="table-scroll">
+        <table>
+          <caption>Hoja de plátano, área de 10 × 10 cm</caption>
+          <thead><tr><th>Condición</th><th class="num">Voltaje máximo</th></tr></thead>
+          <tbody>
+            <tr><td>Fresca</td><td class="num">0.20 Vpp</td></tr>
+            <tr><td>Hervida</td><td class="num">0.25 Vpp</td></tr>
+            <tr><td>Deshidratada</td><td class="num hi">0.54 Vpp</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p style="font-size:.88rem;color:var(--ink-faint);margin-top:14px;">La deshidratación favoreció la respuesta eléctrica frente a la hoja fresca u hervida, lo que sugiere que la humedad ayuda a disipar la carga acumulada en la superficie.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resultados">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">04</span>
+        <h2>Resultados por material</h2>
+      </div>
+      <p class="prose">Todas las mediciones corresponden a voltaje pico a pico (Vpp), comparando cada material orgánico contra unicel y Teflón, con y sin el adhesivo de grafito.</p>
+    </div>
+
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th class="num">Unicel</th>
+          <th class="num">Teflón</th>
+          <th class="num">Unicel + grafito</th>
+          <th class="num">Teflón + grafito</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Cáscara de papa 100 %</td><td class="num">17.6 Vpp</td><td class="num">4.2 Vpp</td><td class="num hi">30.4 Vpp</td><td class="num hi">7.2 Vpp</td></tr>
+        <tr><td>Cáscara de papa 60 %</td><td class="num">41.6 Vpp</td><td class="num">4.0 Vpp</td><td class="num hi">48.0 Vpp</td><td class="num hi">5.2 Vpp</td></tr>
+        <tr><td>Pulpa de café</td><td class="num">35.2 Vpp</td><td class="num">4.8 Vpp</td><td class="num hi">36.8 Vpp</td><td class="num hi">2.4 Vpp</td></tr>
+        <tr><td>Hoja de mata de plátano</td><td class="num">68.0 Vpp</td><td class="num">8.0 Vpp</td><td class="num hi">75.4 Vpp</td><td class="num hi">12.4 Vpp</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-wrap"><canvas id="resultsChart"></canvas></div>
+    </div>
+
+    <div class="two-col" style="margin-top:48px;">
+      <div class="callout">
+        <p><strong>El grafito no siempre ayuda.</strong> Mejoró la respuesta en unicel (17.6 → 30.4 Vpp), en cáscara de papa al 60 % (41.6 → 48.0 Vpp) y en hoja de plátano (68.0 → 75.4 Vpp). Pero en pulpa de café y sobre todo en Teflón, el grafito redujo el voltaje en algunas pruebas. Su efecto depende de la combinación específica de materiales.</p>
+      </div>
+      <div class="callout" style="background:var(--surface);border-left-color:var(--moss);">
+        <p><strong>Más material no es mejor material.</strong> La cáscara de papa al 60 % superó a la de 100 % en ambas condiciones (41.6 vs. 17.6 Vpp sin grafito; 48.0 vs. 30.4 Vpp con grafito). La cantidad, distribución y superficie de contacto real importan más que simplemente cubrir toda el área con más residuo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="residuos" style="background:var(--bg-soft);">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">05</span>
+        <h2>De bolsa de frituras a fuente de voltaje</h2>
+      </div>
+      <p class="prose">Quisimos probar un residuo que cualquiera reconoce y que normalmente no se recicla: una bolsa de Sabritas.</p>
+    </div>
+
+    <div class="feature-panel">
+      <div class="visual">
+        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 30 h120 v170 q0 20 -20 20 h-80 q-20 0 -20 -20 z" fill="#E4CDA0" stroke="#EDEADA" stroke-width="2"/>
+          <path d="M55 30 v-14 q45 -12 90 0 v14" fill="none" stroke="#EDEADA" stroke-width="2"/>
+          <line x1="52" y1="70" x2="148" y2="70" stroke="#3A3B36" stroke-width="1" opacity=".4"/>
+          <line x1="52" y1="120" x2="148" y2="120" stroke="#3A3B36" stroke-width="1" opacity=".4"/>
+          <line x1="52" y1="170" x2="148" y2="170" stroke="#3A3B36" stroke-width="1" opacity=".4"/>
+          <circle cx="100" cy="95" r="4" fill="#AD7A2E"/>
+          <circle cx="70" cy="95" r="4" fill="#AD7A2E"/>
+          <circle cx="130" cy="95" r="4" fill="#AD7A2E"/>
+        </svg>
+      </div>
+      <div class="content">
+        <h3>48.40 Vpp con una bolsa reutilizada</h3>
+        <p>Usamos una bolsa limpia y completamente seca. En un TENG de 10 × 10 cm, la parte externa de la bolsa fue la superficie de contacto, mientras que su cara metalizada quedó orientada hacia la placa fenólica. Después de aproximadamente 15 ciclos de contacto-separación, combinada con unicel, alcanzó un máximo de 48.40 Vpp.</p>
+        <p style="color:var(--ink-soft);">Es un resultado clave para el proyecto: demuestra que un empaque de un solo uso —de los que normalmente terminan en un vertedero o tirados en la calle— puede incorporarse a un sistema de generación eléctrica en lugar de considerarse únicamente basura.</p>
+        <div class="figures">
+          <div><strong>15</strong>ciclos de contacto-separación</div>
+          <div><strong>10×10 cm</strong>área efectiva</div>
+          <div><strong>Unicel</strong>material contraparte</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="circuito">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">06</span>
+        <h2>Caracterización y circuito de salida</h2>
+      </div>
+      <p class="prose">Una vez identificados los materiales con mejor respuesta, medimos la señal con instrumentación más precisa y la acondicionamos para encender cargas reales.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="diagram-card">
+        <svg viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="90" width="60" height="40" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+          <text x="50" y="114" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="12" fill="var(--ink)">TENG</text>
+          <path d="M80 100 h40" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+          <path d="M80 120 h40" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+          <rect x="120" y="80" width="70" height="60" rx="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+          <text x="155" y="106" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="11" fill="var(--ink)">Puente</text>
+          <text x="155" y="122" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="11" fill="var(--ink)">rectificador</text>
+          <path d="M190 110 h40" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+          <line x1="240" y1="90" x2="240" y2="130" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="252" y1="90" x2="252" y2="130" stroke="var(--ink)" stroke-width="2"/>
+          <text x="246" y="150" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="10" fill="var(--ink-faint)">C1 · C2</text>
+          <path d="M252 110 h50" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+          <circle cx="330" cy="110" r="26" fill="none" stroke="var(--amber)" stroke-width="1.6"/>
+          <path d="M318 118 l24 -16 M318 102 l24 16" stroke="var(--amber)" stroke-width="1.6"/>
+          <text x="330" y="155" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="11" fill="var(--ink)">LED</text>
+          <path d="M356 110 h30" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+          <path d="M20 100 C 0 100, 0 20, 386 20 L 386 110" stroke="var(--ink-faint)" stroke-width="1" stroke-dasharray="3 4" fill="none"/>
+        </svg>
+        <figcaption>El TENG produce una señal alterna, por lo que la pasamos por un puente rectificador de diodos y dos capacitores para estabilizar la salida antes de entregarla a la carga.</figcaption>
+      </div>
+      <div>
+        <p>Con la señal rectificada y estabilizada logramos encender un LED de forma directa y, en condiciones de menor iluminación ambiental, hasta tres LED conectados en paralelo.</p>
+        <div class="callout">
+          <p><strong>Lo que no pudimos medir:</strong> la corriente generada no se pudo caracterizar con suficiente precisión con el equipo disponible, así que no reportamos un valor de amperaje como medición experimental. Por eso los 280 Vpp deben leerse como un dato de voltaje, no como una cifra de potencia disponible.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="innovacion" class="dark">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">07</span>
+        <h2>Lo que este TENG demuestra</h2>
+      </div>
+      <p class="principle">No reemplaza al panel solar. Lo complementa aprovechando movimiento que hoy se pierde.</p>
+    </div>
+
+    <p style="max-width:70ch;color:#C9CBB6;">Mientras una celda solar convierte radiación luminosa en electricidad, un TENG aprovecha energía mecánica: golpes, presión, vibración, pisadas, el roce de una superficie contra otra. Son formas de energía disponibles todo el tiempo a nuestro alrededor y que normalmente se disipan sin ningún uso.</p>
+
+    <div class="two-col" style="margin-top:48px;">
+      <div>
+        <h3 style="color:#F3F1E3;font-size:1.2rem;">¿Qué es el <em style="color:var(--sage);font-style:italic;">energy harvesting</em>?</h3>
+        <p style="color:#C9CBB6;">El <em>energy harvesting</em> (cosecha de energía) es el campo que estudia cómo capturar pequeñas cantidades de energía que ya existen en el entorno —luz, calor, movimiento, señales de radiofrecuencia— y convertirlas en electricidad útil, generalmente para alimentar dispositivos de bajo consumo sin depender de baterías ni de la red eléctrica.</p>
+        <p style="color:#C9CBB6;">No busca sustituir a las grandes plantas de generación, sino resolver un problema distinto: dar energía a sensores, etiquetas electrónicas o dispositivos portátiles que están dispersos por todos lados, donde cambiar baterías todo el tiempo resulta caro, poco práctico o directamente imposible.</p>
+      </div>
+      <div>
+        <h3 style="color:#F3F1E3;font-size:1.2rem;">Dónde encaja un TENG</h3>
+        <p style="color:#C9CBB6;">Dentro del energy harvesting existen varias familias según la fuente de energía que aprovechan: las celdas fotovoltaicas capturan luz, los generadores termoeléctricos aprovechan diferencias de temperatura, las antenas rectificadoras capturan señales de radiofrecuencia, y los generadores mecánicos —piezoeléctricos y triboeléctricos— capturan movimiento.</p>
+        <p style="color:#C9CBB6;">El TENG pertenece a esta última familia. Frente a un piezoeléctrico, suele ser más sencillo y barato de fabricar, funciona bien con movimientos lentos e irregulares —como una pisada o el golpeteo del viento— y admite una variedad mucho mayor de materiales, incluyendo justamente los residuos y materiales naturales que probamos en este proyecto.</p>
+      </div>
+    </div>
+
+    <div class="apps-grid">
+      <div class="app">
+        <h4>Sensores autoalimentados</h4>
+        <p>El mismo movimiento que se quiere detectar —una pisada, un golpe, una vibración— genera la señal eléctrica que lo identifica, sin depender de una batería externa.</p>
+      </div>
+      <div class="app">
+        <h4>Segunda vida para residuos</h4>
+        <p>Unicel, bolsas metalizadas y cáscaras que normalmente terminan en un vertedero encuentran una función eléctrica antes de convertirse en desecho definitivo.</p>
+      </div>
+      <div class="app">
+        <h4>Energy harvesting complementario</h4>
+        <p>El TENG se suma a otras fuentes de energía renovable, cubriendo el nicho de la energía mecánica ambiental que ninguna otra tecnología aprovecha igual de bien.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="conclusiones">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">08</span>
+        <h2>Conclusiones</h2>
+      </div>
+      <p class="prose">Lo que aprendimos al comparar materiales, cantidades y configuraciones durante la experimentación.</p>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <p>Es posible desarrollar un TENG funcional con materiales naturales, reciclados y de desecho. La hoja de mata de plátano con grafito fue la configuración de mejor desempeño, con 75.4 Vpp, mientras que la combinación de unicel y bolsa de Sabritas alcanzó 48.40 Vpp usando un residuo cotidiano.</p>
+        <p>También comprobamos que más material no significa necesariamente mayor generación eléctrica, como se vio al comparar la cáscara de papa al 100 % y al 60 %, y que el grafito mejora el desempeño solo en algunas combinaciones de materiales, no en todas.</p>
+      </div>
+      <div>
+        <p>El máximo registrado con el osciloscopio fue de 280 Vpp con puntas de alta impedancia ×10; como la corriente no se pudo medir con precisión, estos valores de voltaje no deben interpretarse directamente como una cantidad determinada de potencia.</p>
+        <p>El proyecto muestra el potencial de los TENG en el energy harvesting y los sensores autoalimentados, en especial cuando se combinan con materiales reciclados y recursos naturales: no para sustituir otras tecnologías de generación, sino para complementarlas y, al mismo tiempo, dar un nuevo uso a materiales que hoy consideramos residuo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fuentes" style="background:var(--bg-soft);">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="index">09</span>
+        <h2>Fuentes</h2>
+      </div>
+      <p class="prose">Bibliografía de nuestro reporte y lecturas externas que consultamos para contextualizar el problema de los residuos poliméricos y el estado del arte en TENG.</p>
+    </div>
+
+    <div class="sources">
+      <div class="src"><span class="tag">Reporte propio</span><div>Cheng, T., Shao, J., &amp; Wang, Z. L. (2023). <em>Triboelectric nanogenerators.</em> Nature Reviews Methods Primers, 3.</div></div>
+      <div class="src"><span class="tag">Reporte propio</span><div>Wang, Z. L. (2013). Triboelectric nanogenerators as new energy technology for self-powered systems and as active mechanical and chemical sensors. <em>ACS Nano, 7</em>(11), 9533–9557.</div></div>
+      <div class="src"><span class="tag">Reporte propio</span><div>Effect of humidity and pressure on the triboelectric nanogenerator. (2013). <em>Nano Energy, 2</em>(5), 604–608.</div></div>
+      <div class="src"><span class="tag">Reporte propio</span><div>Sustainable triboelectric nanogenerators based on recycled materials for biomechanical energy harvesting and self-powered sensing. (2023). <em>Nano Energy, 115</em>, 108717.</div></div>
+      <div class="src"><span class="tag">Reporte propio</span><div>Green energy harvesting to power electronic devices using portable triboelectric nanogenerator based on waste corn husk and recycled polystyrene. (2024). <em>Energy Reports, 11</em>, 276–286.</div></div>
+      <div class="src"><span class="tag">Contexto — residuos</span><div><a href="https://delfino.cr/2021/07/el-necesario-aprovechamiento-de-los-residuos-polimericos" target="_blank" rel="noopener">Delfino.cr — El necesario aprovechamiento de los residuos poliméricos</a>, sobre el destino de los plásticos en vertedero y su bajo índice de reciclaje.</div></div>
+      <div class="src"><span class="tag">Contexto — residuos</span><div><a href="https://www.timeoutmexico.mx/ciudad-de-mexico/que-hacer/explicado-con-numeros-contaminacion-por-plasticos-en-mexico" target="_blank" rel="noopener">Time Out México — Contaminación por plásticos en números</a>, con cifras de producción global anual.</div></div>
+      <div class="src"><span class="tag">Contexto — TENG con residuos</span><div><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12898617/" target="_blank" rel="noopener">A Comprehensive Review on Sustainable Triboelectric Energy Harvesting Using Biowaste-Derived Materials</a> (Materials, 2026), revisión sobre TENG basados en biorresiduos agrícolas y orgánicos.</div></div>
+      <div class="src"><span class="tag">Contexto — TENG con residuos</span><div><a href="https://pubs.rsc.org/en/content/articlehtml/2023/va/d3va00018d" target="_blank" rel="noopener">A medical waste X-ray film based triboelectric nanogenerator</a> (RSC, 2023), ejemplo de TENG construido con residuos plásticos reales.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Generador triboeléctrico basado en materiales naturales y residuos — proyecto científico-tecnológico.</span>
+    <span>COBAEV Plantel 35 "Leonardo Pasquel" · Xalapa, Veracruz</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  function cssVar(name){
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  var ctx = document.getElementById('resultsChart');
+  if(!ctx || !window.Chart) return;
+
+  var labels = ['Cáscara de papa 100%','Cáscara de papa 60%','Pulpa de café','Hoja de plátano'];
+  var unicel = [17.6, 41.6, 35.2, 68.0];
+  var unicelG = [30.4, 48.0, 36.8, 75.4];
+  var teflon = [4.2, 4.0, 4.8, 8.0];
+  var teflonG = [7.2, 5.2, 2.4, 12.4];
+
+  var moss = cssVar('--moss') || '#4C6B41';
+  var amber = cssVar('--amber') || '#AD7A2E';
+  var sage = cssVar('--sage') || '#8CA173';
+  var amberSoft = cssVar('--amber-soft') || '#E4CDA0';
+  var ink = cssVar('--ink') || '#1B2016';
+  var line = cssVar('--line') || '#D2CBAE';
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Unicel', data: unicel, backgroundColor: sage, borderRadius: 2 },
+        { label: 'Unicel + grafito', data: unicelG, backgroundColor: moss, borderRadius: 2 },
+        { label: 'Teflón', data: teflon, backgroundColor: amberSoft, borderRadius: 2 },
+        { label: 'Teflón + grafito', data: teflonG, backgroundColor: amber, borderRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Voltaje pico a pico (Vpp)', color: ink, font:{family:"Work Sans"} },
+          ticks: { color: ink, font:{family:"Work Sans"} },
+          grid: { color: line }
+        },
+        x: {
+          ticks: { color: ink, font:{family:"Work Sans"}, maxRotation: 0, autoSkip:false },
+          grid: { display:false }
+        }
+      },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: ink, font:{family:"Work Sans"}, boxWidth:14, padding:16 } },
+        title: { display: true, text: 'Voltaje por material y configuración', color: ink, font:{family:"Fraunces", size:15, weight:'600'} }
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
